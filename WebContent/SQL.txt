@@ -1,0 +1,64 @@
+create table member0125(
+	id number(10) not null primary key,
+	password varchar2(20) not null,
+	name varchar2(20) not null,
+	gender varchar2(10),
+	birth date,
+	mail varchar2(45),
+	phone varchar2(13),
+	address varchar2(80),
+	nickname varchar2(45)
+);
+
+insert into member0125 values(2019100501,'1234','홍길동','남성','90/10/21','hong@kor.com','010-1111-1111','부산시 부산진구 양정동','길동이');
+insert into member0125 values(2019100502,'1234','홍길순','여성','93/02/23','hongs@kor.com','010-2222-1111','부산시 동래구 수안동','길순이');
+insert into member0125 values(2019100503,'1234','이순신','남성','91/02/12','lee@kor.com','010-2222-3331','부산시 금정구 장전동','순신이');
+insert into member0125 values(2019100504,'1234','강감찬','남성','89/02/24','kang@kor.com','010-4444-3331','부산시 해운대구 반송동','찬이');
+insert into member0125 values(2019100505,'1234','이순심','여성','92/11/24','lees@kor.com','010-4444-5661','부산시 영도구 봉래동','심이');
+
+
+create table product0125(
+	productId varchar2(20) not null primary key,
+	productName varchar2(50) not null,
+	unitprice number(10),
+	description varchar2(45),
+	category varchar2(45),
+	manufacturer varchar2(45),
+	unitsInstock number(10),
+	condition varchar2(45)
+);
+
+insert into product0125 values('P10000001','데스크탑 컴퓨터',1500000,'cpu90mhz, ram8gb','desktop','samsung',11,'신규제품');
+insert into product0125 values('N10000001','노트북 컴퓨터',1800000,'Intel I7, RAM16Gb','NoteBook','LG',5,'신규제품');
+insert into product0125 values('N10000002','노트북 컴퓨터',2100000,'Intel I7 7300, RAM16Gb','NoteBook','Apple',3,'중고제품');
+insert into product0125 values('T10000001','타이어',120000,'Hankook 175R','타이어','Hankook',13,'재생제품');
+insert into product0125 values('M10000001','마우스',12000,'Mouse 120','마우스','Gilb',23,'신규제품');
+
+
+create table order0125(
+	id varchar2(20) not null,
+	name varchar2(20) not null,
+	orderdate date,
+	addr varchar2(50),
+	tel varchar2(13),
+	pay varchar2(10),
+	cardno varchar2(20),
+	prodcount number(14),
+	total number(14),
+	primary key(id, name)
+);
+
+
+select
+	id,name,orderdate,addr,tel,pay,cardno,prodcount,b.unitprice,total
+from
+	order0125 a, product0125 b
+where
+	a.id=b.productId
+order by
+	a.id asc
+;
+
+
+
+commit;
