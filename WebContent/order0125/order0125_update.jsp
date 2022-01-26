@@ -26,7 +26,7 @@
 			}
 		}
 		function retry() {
-			document.iu_form.reset();
+			history.back(-1);
 		}
 		
 		function idcheck() {
@@ -60,7 +60,6 @@
 		String orderdate = request.getParameter("orderdate");
 		String tel = request.getParameter("tel");
 		String addr = request.getParameter("addr");
-		
 		String pay = request.getParameter("pay");
 		String cardno = request.getParameter("cardno");
 		String prodcount = request.getParameter("prodcount");
@@ -68,10 +67,27 @@
 	
 		int unitprice = 0;
 		int unitsInstock = 0;
+		int getProdcount = 0;
 		int totalUnitsInstock = 0;
+		if(id==null){
+			id=send_id;
+		}
+		
 		
 		try{
-			String sql = "select id,name,to_char(orderdate,'yyyy-mm-dd'),addr,tel,pay,cardno,prodcount,b.unitsInstock,total from order0125 a, product0125 b where a.id=b.productId and a.id=? and  a.name=?";
+			String sql = "select unitprice,unitsInstock,prodcount from product0125,order0125 where productId=? and id=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			pstmt.setString(2, id);
+			rs = pstmt.executeQuery();
+			if(rs.next()){
+				unitprice = rs.getInt(1);
+				unitsInstock = rs.getInt(2);
+				getProdcount = rs.getInt(3);
+				totalUnitsInstock = unitsInstock+getProdcount;
+			}
+			
+			sql = "select id,name,to_char(orderdate,'yyyy-mm-dd'),addr,tel,pay,cardno,prodcount,b.unitsInstock,total from order0125 a, product0125 b where a.id=b.productId and a.id=? and  a.name=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, send_id);
 			pstmt.setString(2, send_name);
@@ -87,30 +103,31 @@
 				prodcount = rs.getString(8);
 				unitsInstock = rs.getInt(9);
 				total = rs.getString(10);
-				
 				totalUnitsInstock = unitsInstock+Integer.parseInt(prodcount);
-			}else{
-				%><script>
-					alert("해당 주문정보가 없습니다.");
-					history.back(-1);
-				</script><%
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
 		}
-		System.out.println(totalUnitsInstock);
-		System.out.println(prodcount);
-		System.out.println(unitsInstock);
+		
+		if(Integer.parseInt(prodcount)>totalUnitsInstock){
+			%><script>
+				alert("보유중인 재고수를 초과했습니다.");
+			</script><%
+			prodcount = Integer.toString(totalUnitsInstock);
+		}else if(Integer.parseInt(prodcount)<0){
+			prodcount = "0";
+		}
+		total = Integer.toString(unitprice*Integer.parseInt(prodcount));
 	%>
 	<section>
 		<h2>주문 정보 변경 화면</h2>
-		<form name="iu_form" method="post" action="/HRD_0125/order0125/order0125_update.jsp?send_id=<%=id%>&send_name=<%=name%>">
+		<form name="iu_form" method="post" action="/HRD_0125/order0125/order0125_update.jsp">
 			<table id="iu_table">
 				<tr>
 					<th>상품 코드</th>
 					<td><input type="text" name="id" value="<%=id %>" readonly></td>
 					<th>주문자 이름</th>
-					<td><input type="text" name="name" value="<%=name %>"></td>
+					<td><input type="text" name="name" value="<%=name %>" readonly></td>
 				</tr>
 				<tr>
 					<th>주문 날짜</th>
@@ -139,8 +156,8 @@
 				</tr>
 				<tr>
 					<td id="btntd" colspan="4">
-						<button type="button" onclick="check()">주문등록</button>
-						<button type="button" onclick="retry()">다시작성</button>
+						<button type="button" onclick="check()">주문변경</button>
+						<button type="button" onclick="retry()">뒤로</button>
 					</td>
 				</tr>
 			</table>
